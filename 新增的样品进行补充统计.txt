@@ -1,0 +1,42 @@
+#新增的主工作量进行补充统计
+import openpyxl
+
+# 打开总表
+wb_total = openpyxl.load_workbook('C:/Users/jkl05/Desktop/工作量04月份(1)/总表.xlsx')
+ws_total = wb_total['Sheet1']
+
+# 遍历每个表格
+for name in ['崔慧敏', '崔鑫培', '宫芹']:
+    # 打开表格
+    wb = openpyxl.load_workbook(f'C:/Users/jkl05/Desktop/工作量04月份(1)/{name}.xlsx')
+    ws = wb.active
+
+    # 遍历从第多少行到多少行之间的新增样品名称
+    for row in range(19, 34):
+        # 获取目录信息和数值
+        directory = [ws.cell(row=row, column=col).value for col in range(2, 6)]
+        value = ws.cell(row=row, column=37).value
+
+
+
+        # 在总表中查找对应目录
+        for row_total in range(2, ws_total.max_row + 1):
+            directory_total = [ws_total.cell(row=row_total, column=col).value for col in range(2, 6)]
+            if directory_total == directory:
+                # 目录一致，复制数值到对应位置
+                ws_total.cell(row=row_total, column=['崔慧敏', '崔鑫培', '宫芹'].index(name) + 6, value=value)
+                break
+        else:
+            # 目录不一致，在总表中插入新行
+            row_total = ws_total.max_row + 1
+            for col in range(2, 6):
+                ws_total.cell(row=row_total, column=col, value=directory[col-2])
+            ws_total.cell(row=row_total, column=['崔慧敏', '崔鑫培', '宫芹'].index(name) + 6, value=value)
+
+    # 关闭表格
+    wb.close()
+    
+    # 打印处理结果
+    print(f"{name} 文件处理完毕！")
+# 保存总表
+wb_total.save('C:/Users/jkl05/Desktop/工作量04月份(1)/总表.xlsx')
