@@ -1,8 +1,8 @@
 import openpyxl
+import os
 
-#固定行的主工作量统计
 # 打开“总表”文件
-wb = openpyxl.load_workbook('C:\\Users\\jkl05\\Desktop\\工作量04月份(1)\\总表.xlsx')
+wb = openpyxl.load_workbook(r'F:\工作\工作-1\1-E.区域管理\工作量批量处理\主工作量\总表.xlsx')
 ws = wb.active
 
 # 定义需要读取的表格名称列表
@@ -10,13 +10,18 @@ table_names = ['崔慧敏', '崔鑫培', '宫芹']
 
 # 循环读取每个表格的第37列数据，并复制到“总表”的对应列中
 for i, name in enumerate(table_names):
+    # 判断子表格文件是否存在
+    file_path = r'F:\工作\工作-1\1-E.区域管理\工作量批量处理\主工作量\{}.xlsx'.format(name)
+    if not os.path.isfile(file_path):
+        print('表格不存在：{}'.format(name))
+        continue
+
     # 打开当前表格
-    file_path = 'C:\\Users\\jkl05\\Desktop\\工作量04月份(1)\\{}.xlsx'.format(name)
     file = openpyxl.load_workbook(file_path)
     sheet = file.active
 
-    # 复制第37列第4行到382行的数据
-    for j, row in enumerate(sheet.iter_rows(min_row=4, min_col=37, max_row=382)):
+    # 复制第37列第5行到382行的数据（从5行开始，应输入数值min_row=4，从4开始不包括4）
+    for j, row in enumerate(sheet.iter_rows(min_row=4, min_col=39, max_row=354)):
         value = row[0].value
         if value is None:
             value = 0
@@ -24,10 +29,13 @@ for i, name in enumerate(table_names):
 
     # 复制第5列第1行的单元格内容到“总表”的第6列第3行
     value = sheet.cell(row=1, column=5).value
-    ws.cell(row=3, column=6+i, value=value)
+    ws.cell(row=4, column=6+i, value=value)
 
     file.close()
 
+    # 打印已处理的表格名称
+    print('已处理完表格：{}'.format(name))
+
 # 保存并关闭“总表”文件
-wb.save('C:\\Users\\jkl05\\Desktop\\工作量04月份(1)\\总表.xlsx')
+wb.save(r'F:\工作\工作-1\1-E.区域管理\工作量批量处理\主工作量\总表.xlsx')
 wb.close()
