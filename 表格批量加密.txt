@@ -1,0 +1,39 @@
+#主工作量表格批量加密
+import os
+import openpyxl
+from openpyxl.styles import Protection
+from openpyxl.worksheet.protection import SheetProtection
+
+folder = "C:\\Users\\CDM\\Desktop\\工作量04月份(1)"
+names = ["崔慧敏", "崔鑫培", "宫芹"]
+password = "000000"
+
+for name in names:
+    file_path = os.path.join(folder, f"{name}.xlsx")
+    if os.path.exists(file_path):
+        workbook = openpyxl.load_workbook(file_path)
+        worksheet = workbook.active
+
+        # 取消所有单元格的锁定
+        for row in worksheet.iter_rows():
+            for cell in row:
+                cell.protection = Protection()
+
+        # 设置B3:E283区域的单元格为锁定状态
+        for row in worksheet.iter_rows(min_row=3, max_row=380, min_col=2, max_col=5):
+            for cell in row:
+                cell.protection = Protection(locked=True)
+
+        # 设置工作表保护
+        sheet_protection = SheetProtection()
+        sheet_protection.set_password(password)
+        sheet_protection.sheet = True
+        sheet_protection.sort = False  # 禁止排序
+        sheet_protection.auto_filter = False  # 禁止自动筛选
+        sheet_protection.pivot_tables = False  # 禁止使用数据透视表
+        worksheet.protection = sheet_protection
+
+        workbook.save(file_path)
+        print(f"{name} 文件处理完毕！")
+    else:
+        print(f"{name} 文件不存在！")
