@@ -1,0 +1,27 @@
+#取消所有单元格保护
+import os
+import openpyxl
+from openpyxl.styles import Protection
+from openpyxl.worksheet.protection import SheetProtection
+
+folder = "C:\\Users\\CDM\\Desktop\\工作量04月份(1)"
+names = ["崔慧敏", "崔鑫培", "宫芹"]
+
+for name in names:
+    file_path = os.path.join(folder, f"{name}.xlsx")
+    if os.path.exists(file_path):
+        workbook = openpyxl.load_workbook(file_path)
+        worksheet = workbook.active
+
+        # 取消所有单元格的保护
+        for row in worksheet.iter_rows():
+            for cell in row:
+                cell.protection = Protection()
+
+        # 取消工作表保护
+        worksheet.protection = SheetProtection()
+
+        workbook.save(file_path)
+        print(f"{name} 文件处理完毕！")
+    else:
+        print(f"{name} 文件不存在！")
