@@ -4,7 +4,7 @@ import openpyxl
 from openpyxl.styles import Protection
 from openpyxl.worksheet.protection import SheetProtection
 
-folder = "C:\\Users\\CDM\\Desktop\\工作量04月份(1)"
+folder = "F:/工作/工作-1/1-E.区域管理/工作量批量处理/主工作量"
 names = ["崔慧敏", "崔鑫培", "宫芹"]
 
 for name in names:
