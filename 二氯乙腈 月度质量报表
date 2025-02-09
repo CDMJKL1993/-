@@ -1,0 +1,190 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from openpyxl import load_workbook
+from matplotlib import rcParams
+from matplotlib.ticker import FuncFormatter
+import numpy as np
+
+# 解决中文显示问题
+rcParams['font.sans-serif'] = ['SimHei']
+rcParams['axes.unicode_minus'] = False
+
+# 1. 加载Excel文件
+file_path = r'D:\OneDrive\Desktop\作图分析数据表\二氯乙腈\二氯乙腈月度回顾01月.xlsx'
+wb = load_workbook(file_path, data_only=True)
+sheet = wb['数据清洗']
+
+# 2. 读取J、K、M、O、Q列数据
+J_values = [sheet[f'J{i}'].value for i in range(9, 47) if sheet[f'J{i}'].value is not None]
+K_values = [sheet[f'K{i}'].value for i in range(9, 47) if sheet[f'K{i}'].value is not None]
+M_values = [sheet[f'M{i}'].value for i in range(9, 47) if sheet[f'M{i}'].value is not None]
+O_values = [sheet[f'O{i}'].value for i in range(9, 47) if sheet[f'O{i}'].value is not None]
+Q_values = [sheet[f'Q{i}'].value for i in range(9, 47) if sheet[f'Q{i}'].value is not None]
+
+n_J = len(J_values)
+n_K = len(K_values)
+n_M = len(M_values)
+n_O = len(O_values)
+n_Q = len(Q_values)
+
+# 3. 计算每个项目的控制上限和控制下限
+# J列水分
+mean_J = np.mean(J_values)
+std_J = np.std(J_values, ddof=0)
+control_upper_J = round(mean_J + 3 * std_J, 4)
+control_lower_J = round(mean_J - 3 * std_J, 4)
+
+# K列色谱纯度
+mean_K = np.mean(K_values)
+std_K = np.std(K_values, ddof=0)
+control_upper_K = round(mean_K + 3 * std_K, 4)
+control_lower_K = round(mean_K - 3 * std_K, 4)
+
+# M列 三氯乙腈
+mean_M = np.mean(M_values)
+std_M = np.std(M_values, ddof=0)
+control_upper_M = round(mean_M + 3 * std_M, 4)
+control_lower_M = round(mean_M - 3 * std_M, 4)
+
+#O列 溴氯乙腈
+mean_O = np.mean(O_values)
+std_O = np.std(O_values, ddof=0)
+control_upper_O = round(mean_O + 3 * std_O, 4)
+control_lower_O = round(mean_O - 3 * std_O, 4)
+
+#Q列 二氯乙酰胺
+mean_Q = np.mean(Q_values)
+std_Q = np.std(Q_values, ddof=0)
+control_upper_Q = round(mean_Q + 3 * std_Q, 4)
+control_lower_Q = round(mean_Q - 3 * std_Q, 4)
+
+#每个项目的标准控制限
+standard_upper_J = [0.001] * n_J  # 水分 标准上限 0.1%
+standard_lower_K= [0.99] * n_K  # 色谱纯度 标准下限 99.0%
+standard_upper_M= [0.0005] * n_M  # 三氯乙腈 标准上限 0.05%
+standard_upper_O= [0.0015] * n_O # 溴氯乙腈 标准上限 0.15%
+standard_upper_Q = [0.0020] * n_Q  # 二氯乙酰胺 标准上限 0.20%
+
+# 4. 计算统计数据
+total_count_J = n_J
+total_count_K = n_K
+total_count_M = n_M
+total_count_O = n_O
+total_count_Q = n_Q
+
+exceed_control_upper_J = sum(1 for v in J_values if v >= control_upper_J)
+exceed_control_lower_J = sum(1 for v in J_values if v <= control_lower_J)
+exceed_standard_upper_J = sum(1 for v in J_values if v > 0.001)
+
+exceed_control_upper_K = sum(1 for v in K_values if v >= control_upper_K)
+exceed_control_lower_K = sum(1 for v in K_values if v <= control_lower_K)
+exceed_standard_upper_K = sum(1 for v in K_values if v > 0.99)
+
+exceed_control_upper_M = sum(1 for v in M_values if v >= control_upper_M)
+exceed_control_lower_M = sum(1 for v in M_values if v <= control_lower_M)
+exceed_standard_upper_M = sum(1 for v in M_values if v < 0.0005)
+
+exceed_control_upper_O = sum(1 for v in O_values if v >= control_upper_O)
+exceed_control_lower_O = sum(1 for v in O_values if v <= control_lower_O)
+exceed_standard_upper_O = sum(1 for v in O_values if v < 0.0015)
+
+exceed_control_upper_Q = sum(1 for v in Q_values if v >= control_upper_Q)
+exceed_control_lower_Q = sum(1 for v in Q_values if v <= control_lower_Q)
+exceed_standard_upper_Q = sum(1 for v in Q_values if v > 0.0020)
+
+# 5. 输出统计结果
+print(f'水分总数量: {total_count_J}')
+print(f'超过控制上限的数量: {exceed_control_upper_J}')
+print(f'超过控制下限的数量: {exceed_control_lower_J}')
+print(f'超过标准上限的数量: {exceed_standard_upper_J}')
+
+print(f'色谱纯度总数量: {total_count_K}')
+print(f'超过控制上限的数量: {exceed_control_upper_K}')
+print(f'超过控制下限的数量: {exceed_control_lower_K}')
+print(f'高于标准上限的数量: {exceed_standard_upper_K}')
+
+print(f'三氯乙腈总数量: {total_count_M}')
+print(f'超过控制上限的数量: {exceed_control_upper_M}')
+print(f'超过控制下限的数量: {exceed_control_lower_M}')
+print(f'高于标准上限的数量: {exceed_standard_upper_M}')
+
+print(f'溴氯乙腈总数量: {total_count_O}')
+print(f'超过控制上限的数量: {exceed_control_upper_O}')
+print(f'超过控制下限的数量: {exceed_control_lower_O}')
+print(f'超过标准上限的数量: {exceed_standard_upper_O}')
+
+print(f'二氯乙酰胺总数量: {total_count_Q}')
+print(f'超过控制上限的数量: {exceed_control_upper_Q}')
+print(f'超过控制下限的数量: {exceed_control_lower_Q}')
+print(f'超过标准上限的数量: {exceed_standard_upper_Q}')
+
+# 6. 生成折线图
+def plot_trend(values, control_upper, control_lower, standard, title, y_label, img_path, legend_labels):
+    plt.figure(figsize=(10, 6))
+    x_values = range(1, len(values) + 1)
+
+    df_dict = {
+        '实际值': values,
+        '控制上限': [control_upper] * len(values),
+        '控制下限': [control_lower] * len(values)
+    }
+    if standard is not None:
+        df_dict['标准值'] = standard
+
+    df = pd.DataFrame(df_dict)
+
+    colors = {
+        '实际值': 'blue',
+        '控制上限': 'orange',
+        '控制下限': 'red'
+    }
+    if standard is not None:
+        colors['标准值'] = 'green'
+
+    for column in df.columns:
+        plt.plot(x_values, df[column], label=legend_labels[column], color=colors[column])
+
+    plt.title(title, fontsize=18)
+    plt.xlabel('时间 (数据点序号)', fontsize=14)
+    plt.ylabel(y_label, fontsize=14)
+    plt.xticks([])
+    plt.gca().xaxis.set_visible(False)
+    plt.legend(title='折线名称', loc='upper center', ncol=4, bbox_to_anchor=(0.5, -0.1), frameon=False, fontsize=12)
+
+    formatter = FuncFormatter(lambda x, pos: f'{x * 100:.2f}%')
+    plt.gca().yaxis.set_major_formatter(formatter)
+
+    # 添加网格线
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
+
+    plt.tight_layout()
+    plt.savefig(img_path)
+    plt.show()
+
+# 7. 生成图表
+plot_trend(J_values, control_upper_J, control_lower_J, standard_upper_J, '2025年01月二氯乙腈水分质量趋势图', '质量情况',
+           r'D:\OneDrive\Desktop\作图分析数据表\二氯乙腈\水分趋势图.png',
+           {'实际值': '水分', '控制上限': f'控制上限={control_upper_J * 100:.2f}%',
+            '控制下限': f'控制下限={control_lower_J * 100:.2f}%', '标准值': '标准上限=0.10%'})
+
+plot_trend(K_values, control_upper_K, control_lower_K, standard_lower_K, '2025年01月二氯乙腈色谱纯度质量趋势图', '质量情况',
+           r'D:\OneDrive\Desktop\作图分析数据表\二氯乙腈\色谱纯度趋势图.png',
+           {'实际值': '色谱纯度', '控制上限': f'控制上限={control_upper_K * 100:.2f}%',
+            '控制下限': f'控制下限={control_lower_K * 100:.2f}%', '标准值': '标准下限=99.0%'})
+
+plot_trend(M_values, control_upper_M, control_lower_M, standard_upper_M, '2025年01月二氯乙腈中三氯乙腈质量趋势图', '质量情况',
+           r'D:\OneDrive\Desktop\作图分析数据表\二氯乙腈\色谱纯度趋势图.png',
+           {'实际值': '三氯乙腈', '控制上限': f'控制上限={control_upper_M * 100:.2f}%',
+            '控制下限': f'控制下限={control_lower_M * 100:.2f}%', '标准值': '标准上限=0.05%'})
+
+plot_trend(O_values, control_upper_O, control_lower_O, standard_upper_O, '2025年01月二氯乙腈中溴氯乙腈质量趋势图', '质量情况',
+           r'D:\OneDrive\Desktop\作图分析数据表\二氯乙腈\溴氯乙腈趋势图.png',
+           {'实际值': '溴氯乙腈', '控制上限': f'控制上限={control_upper_O * 100:.2f}%',
+            '控制下限': f'控制下限={control_lower_O * 100:.2f}%','标准值': '标准上限=0.15%'})
+
+plot_trend(Q_values, control_upper_Q, control_lower_Q, standard_upper_Q, '2025年01月二氯乙腈中二氯乙酰胺质量趋势图', '质量情况',
+           r'D:\OneDrive\Desktop\作图分析数据表\二氯乙腈\二氯乙酰胺趋势图.png',
+           {'实际值': '二氯乙酰胺', '控制上限': f'控制上限={control_upper_Q * 100:.2f}%',
+            '控制下限': f'控制下限={control_lower_Q * 100:.2f}%', '标准值': '标准上限=0.20%'})
+
+wb.save(file_path)
